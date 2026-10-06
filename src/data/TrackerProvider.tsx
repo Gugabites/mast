@@ -150,7 +150,7 @@ export function TrackerProvider({ children }: { children: ReactNode }) {
   // Nova versão na mesma linhagem, começando hoje.
   async function restore(lineageVersions: Objective[]) {
     const last = latestVersion(lineageVersions)
-    await createObjective(
+    const created = await api.createObjective(
       {
         title: last.title,
         polarity: last.polarity,
@@ -161,6 +161,19 @@ export function TrackerProvider({ children }: { children: ReactNode }) {
       },
       last.lineage_id,
     )
+    setObjectives((prev) => [...prev, created])
+
+    // Arquivado e restaurado no mesmo dia: a marcação de hoje acompanha a nova
+    // versão. Adiciona antes de remover: se a remoção falhar, sobra só um
+    // registro numa versão arquivada, que não aparece em lugar nenhum.
+    if (logs.has(last.id, today)) {
+      await addLog(created.id, today)
+      setLogRows((rows) => [...rows, { objective_id: created.id, log_date: today }])
+      await removeLog(last.id, today)
+      setLogRows((rows) =>
+        rows.filter((r) => !(r.objective_id === last.id && r.log_date === today)),
+      )
+    }
   }
 
   async function remove(o: Objective) {

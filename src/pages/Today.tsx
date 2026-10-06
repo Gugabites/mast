@@ -68,7 +68,8 @@ export function Today() {
       objective={o}
       logged={logs.has(o.id, date)}
       isToday={isToday}
-      streak={streaks.get(o.lineage_id)?.current ?? 0}
+      // A sequência é a de hoje; ao rever um dia anterior ela confundiria.
+      streak={isToday ? (streaks.get(o.lineage_id)?.current ?? 0) : 0}
       onToggle={() => tracker.toggleLog(o.id, date)}
       onEdit={() => setSheet({ mode: 'edit', objective: o })}
     />

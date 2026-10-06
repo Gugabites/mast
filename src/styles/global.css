@@ -585,17 +585,38 @@ textarea {
   overscroll-behavior: contain;
 }
 
-/* No celular os botões empilham com o principal em cima. */
 .sheet-footer {
   display: flex;
   flex-shrink: 0;
-  flex-direction: column-reverse;
-  gap: var(--s-2);
+  flex-direction: column;
+  gap: var(--s-3);
   padding: var(--s-3) var(--s-5) calc(var(--s-3) + env(safe-area-inset-bottom));
   border-top: 1px solid var(--line-soft);
 }
 
-.sheet-footer > .btn {
+/* Aviso fixo acima dos botões: nunca fica abaixo da dobra. */
+.sheet-notice {
+  padding: var(--s-3);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  font-size: 13px;
+  animation: fade-in 150ms ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* No celular os botões empilham com o principal em cima. */
+.sheet-actions {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--s-2);
+}
+
+.sheet-actions > .btn {
   width: 100%;
 }
 
@@ -1040,13 +1061,13 @@ textarea {
     padding-top: var(--s-4);
   }
 
-  .sheet-footer {
+  .sheet-actions {
     flex-direction: row;
     align-items: center;
     justify-content: flex-end;
   }
 
-  .sheet-footer > .btn {
+  .sheet-actions > .btn {
     width: auto;
   }
 
@@ -1063,6 +1084,7 @@ textarea {
 
 @media (prefers-reduced-motion: reduce) {
   .sheet[open],
+  .sheet-notice,
   .skeleton,
   .check-btn[aria-pressed='true'] .check-box {
     animation: none;

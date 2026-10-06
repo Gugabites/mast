@@ -231,31 +231,33 @@ export function GoalForm({ goals, goal, onDone }: GoalFormProps) {
       </div>
 
       <div className="sheet-footer">
-        {goal ? (
-          <div className="sheet-footer-secondary">
-            {goal.status === 'done'
-              ? statusAction('active', 'Reabrir', 'Meta reaberta.')
-              : statusAction('done', 'Concluir', 'Meta concluída.')}
-            {goal.status === 'archived'
-              ? statusAction('active', 'Desarquivar', 'Meta desarquivada.')
-              : statusAction('archived', 'Arquivar', 'Meta arquivada.')}
-            <button
-              type="button"
-              className="btn btn-text text-negative"
-              disabled={busy || confirmingDelete}
-              onClick={() => setConfirmingDelete(true)}
-            >
-              Excluir
+        <div className="sheet-actions">
+          {goal ? (
+            <div className="sheet-footer-secondary">
+              {goal.status === 'done'
+                ? statusAction('active', 'Reabrir', 'Meta reaberta.')
+                : statusAction('done', 'Concluir', 'Meta concluída.')}
+              {goal.status === 'archived'
+                ? statusAction('active', 'Desarquivar', 'Meta desarquivada.')
+                : statusAction('archived', 'Arquivar', 'Meta arquivada.')}
+              <button
+                type="button"
+                className="btn btn-text text-negative"
+                disabled={busy || confirmingDelete}
+                onClick={() => setConfirmingDelete(true)}
+              >
+                Excluir
+              </button>
+            </div>
+          ) : (
+            <button type="button" className="btn btn-ghost" disabled={busy} onClick={onDone}>
+              Cancelar
             </button>
-          </div>
-        ) : (
-          <button type="button" className="btn btn-ghost" disabled={busy} onClick={onDone}>
-            Cancelar
+          )}
+          <button type="submit" className="btn btn-primary" disabled={busy}>
+            {busy ? 'Salvando…' : goal ? 'Salvar' : 'Criar meta'}
           </button>
-        )}
-        <button type="submit" className="btn btn-primary" disabled={busy}>
-          {busy ? 'Salvando…' : goal ? 'Salvar' : 'Criar meta'}
-        </button>
+        </div>
       </div>
     </form>
   )

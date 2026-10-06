@@ -168,12 +168,6 @@ export function ObjectiveForm({ mode, objective, onceDate, onDone }: ObjectiveFo
           </div>
         )}
 
-        {startsNewVersion && (
-          <p className="info-block">
-            A mudança vale a partir de hoje. Seu histórico e sua sequência são mantidos.
-          </p>
-        )}
-
         {confirmingDelete && objective && (
           <ConfirmBlock
             message={
@@ -196,35 +190,42 @@ export function ObjectiveForm({ mode, objective, onceDate, onDone }: ObjectiveFo
       </div>
 
       <div className="sheet-footer">
-        {objective ? (
-          <div className="sheet-footer-secondary">
-            {!isOnce && (
+        {startsNewVersion && (
+          <p className="sheet-notice">
+            A mudança vale a partir de hoje. Seu histórico e sua sequência são mantidos.
+          </p>
+        )}
+        <div className="sheet-actions">
+          {objective ? (
+            <div className="sheet-footer-secondary">
+              {!isOnce && (
+                <button
+                  type="button"
+                  className="btn btn-text"
+                  disabled={busy}
+                  onClick={() => run(() => tracker.archive(objective), 'Objetivo arquivado.')}
+                >
+                  Arquivar
+                </button>
+              )}
               <button
                 type="button"
-                className="btn btn-text"
-                disabled={busy}
-                onClick={() => run(() => tracker.archive(objective), 'Objetivo arquivado.')}
+                className="btn btn-text text-negative"
+                disabled={busy || confirmingDelete}
+                onClick={() => setConfirmingDelete(true)}
               >
-                Arquivar
+                Excluir
               </button>
-            )}
-            <button
-              type="button"
-              className="btn btn-text text-negative"
-              disabled={busy || confirmingDelete}
-              onClick={() => setConfirmingDelete(true)}
-            >
-              Excluir
+            </div>
+          ) : (
+            <button type="button" className="btn btn-ghost" disabled={busy} onClick={onDone}>
+              Cancelar
             </button>
-          </div>
-        ) : (
-          <button type="button" className="btn btn-ghost" disabled={busy} onClick={onDone}>
-            Cancelar
+          )}
+          <button type="submit" className="btn btn-primary" disabled={busy}>
+            {busy ? 'Salvando…' : objective ? 'Salvar' : 'Criar objetivo'}
           </button>
-        )}
-        <button type="submit" className="btn btn-primary" disabled={busy}>
-          {busy ? 'Salvando…' : objective ? 'Salvar' : 'Criar objetivo'}
-        </button>
+        </div>
       </div>
     </form>
   )
