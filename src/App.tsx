@@ -2,7 +2,6 @@ import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './auth/AuthProvider'
 import { RequireAuth } from './auth/RequireAuth'
 import { Layout } from './components/Layout'
-import { Diagnostics } from './pages/Diagnostics'
 import { Goals } from './pages/Goals'
 import { Journal } from './pages/Journal'
 import { Login } from './pages/Login'
@@ -23,7 +22,6 @@ export default function App() {
               <Route path="/metas" element={<Goals />} />
               <Route path="/journal" element={<Journal />} />
               <Route path="/progresso" element={<Progress />} />
-              <Route path="/diagnostico" element={<Diagnostics />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

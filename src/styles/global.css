@@ -270,46 +270,6 @@ textarea {
   color: var(--muted);
 }
 
-/* ---------- diagnóstico ---------- */
-.check-list {
-  margin: var(--s-5) 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.check {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--s-4);
-  padding: var(--s-3) 0;
-  border-top: 1px solid var(--line-soft);
-}
-
-.check-detail {
-  color: var(--muted);
-  font-size: 13px;
-  overflow-wrap: anywhere;
-}
-
-.status {
-  flex-shrink: 0;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.status-pending {
-  color: var(--muted);
-}
-
-.status-ok {
-  color: var(--accent);
-}
-
-.status-error {
-  color: var(--negative);
-}
-
 /* ---------- desktop ---------- */
 @media (min-width: 900px) {
   .only-mobile {
