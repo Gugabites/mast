@@ -7,6 +7,7 @@ import {
   eachDay,
   formatLong,
   formatShort,
+  formatTime,
   greeting,
   isValidISODate,
   localDateOf,
@@ -92,5 +93,9 @@ describe('dates', () => {
     expect(isValidISODate('2026-13-01')).toBe(false)
     expect(isValidISODate('06/10/2026')).toBe(false)
     expect(isValidISODate('')).toBe(false)
+  })
+
+  it('formatTime usa o fuso de São Paulo', () => {
+    expect(formatTime(new Date('2026-10-06T17:32:00Z'))).toBe('14:32')
   })
 })

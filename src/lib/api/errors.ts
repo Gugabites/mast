@@ -29,9 +29,12 @@ export function userMessage(err: unknown): string {
   if (code === '42501' || code === 'PGRST301' || /jwt|session/i.test(message)) {
     return 'Sua sessão expirou. Entre novamente.'
   }
-  // Chrome: "Failed to fetch"; Safari: "Load failed"; Firefox: "NetworkError…"
-  if (/failed to fetch|load failed|networkerror/i.test(message)) {
-    return 'Sem conexão. Tente novamente.'
-  }
+  if (isNetworkError(err)) return 'Sem conexão. Tente novamente.'
   return 'Algo deu errado. Tente novamente.'
+}
+
+/** Falha de rede: Chrome "Failed to fetch"; Safari "Load failed"; Firefox "NetworkError…". */
+export function isNetworkError(err: unknown): boolean {
+  const message = err instanceof Error ? err.message : String(err)
+  return /failed to fetch|load failed|networkerror/i.test(message)
 }

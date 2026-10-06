@@ -109,6 +109,23 @@ function seed() {
     }),
   )
 
+  const entry = (offset: number, title: string | null, body: string) => {
+    const date = day(offset)
+    db.journal_entries.push({
+      id: newId(),
+      user_id: USER_ID,
+      entry_date: date,
+      title,
+      body,
+      created_at: noon(date),
+      updated_at: noon(date),
+    })
+  }
+  entry(-1, 'O que aprendi esta semana', 'Constância pesa mais que intensidade.\nTrês dias seguidos já mudam o humor.')
+  entry(-4, null, 'Acordei cedo e fui direto para a leitura.\nO resto do dia rendeu mais do que eu esperava.')
+  entry(-20, 'Uma entrada longa', 'Este texto é comprido de propósito, para conferir a prévia cortada na lista. '.repeat(8))
+  entry(-33, 'Recomeço', 'Voltei a escrever depois de um tempo parado.')
+
   const goal = { user_id: USER_ID, why: null, due_date: null, unit: null, target_value: null, status: 'active' }
   db.goals.push(
     {
@@ -171,12 +188,18 @@ function replaceObjective(args: Row): Response {
   return json(next)
 }
 
+// Interruptor para simular queda de conexão nas gravações. No console da prévia:
+//   __mastMock.failWrites = true
+const controls = { failWrites: false }
+
 function handle(url: URL, init: RequestInit): Response {
   const resource = url.pathname.split('/rest/v1/')[1] ?? ''
   const method = (init.method ?? 'GET').toUpperCase()
   const headers = new Headers(init.headers)
   const single = (headers.get('Accept') ?? '').includes('vnd.pgrst.object')
   const body: Row | null = init.body ? JSON.parse(String(init.body)) : null
+
+  if (controls.failWrites && method !== 'GET') throw new TypeError('Failed to fetch')
 
   if (resource === 'rpc/replace_objective' && body) return replaceObjective(body)
 
@@ -215,14 +238,15 @@ function handle(url: URL, init: RequestInit): Response {
       if (duplicate) return json({ code: '23505', message: 'duplicate key' }, 409)
       return reply([insertLog(body.objective_id, body.log_date)], 201)
     }
-    const created = { id: newId(), user_id: USER_ID, created_at: new Date().toISOString(), status: 'active', ...body }
+    const now = new Date().toISOString()
+    const created = { id: newId(), user_id: USER_ID, created_at: now, updated_at: now, status: 'active', ...body }
     table.push(created)
     return reply([created], 201)
   }
 
   if (method === 'PATCH' && body) {
     const rows = table.filter(matches)
-    for (const row of rows) Object.assign(row, body)
+    for (const row of rows) Object.assign(row, body, { updated_at: new Date().toISOString() })
     return reply(rows)
   }
 
@@ -240,6 +264,7 @@ function handle(url: URL, init: RequestInit): Response {
 }
 
 export function installMockBackend() {
+  Object.assign(window, { __mastMock: controls })
   const supabaseUrl = new URL(import.meta.env.VITE_SUPABASE_URL)
   seed()
 

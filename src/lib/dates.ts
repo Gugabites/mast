@@ -113,3 +113,14 @@ export function capitalize(s: string): string {
 export function isValidISODate(s: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(s) && toISODate(parseISODate(s)) === s
 }
+
+const timeFormatter = new Intl.DateTimeFormat('pt-BR', {
+  timeZone: TZ,
+  hour: '2-digit',
+  minute: '2-digit',
+})
+
+/** Hora em São Paulo, ex.: "14:32". */
+export function formatTime(date: Date): string {
+  return timeFormatter.format(date)
+}

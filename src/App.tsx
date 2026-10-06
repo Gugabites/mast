@@ -3,7 +3,8 @@ import { AuthProvider } from './auth/AuthProvider'
 import { RequireAuth } from './auth/RequireAuth'
 import { Layout } from './components/Layout'
 import { Goals } from './pages/Goals'
-import { Journal } from './pages/Journal'
+import { JournalEditor } from './pages/JournalEditor'
+import { JournalList } from './pages/JournalList'
 import { Login } from './pages/Login'
 import { Objectives } from './pages/Objectives'
 import { Progress } from './pages/Progress'
@@ -20,7 +21,9 @@ export default function App() {
               <Route index element={<Today />} />
               <Route path="/objetivos" element={<Objectives />} />
               <Route path="/metas" element={<Goals />} />
-              <Route path="/journal" element={<Journal />} />
+              <Route path="/journal" element={<JournalList />} />
+              {/* Uma rota só para /journal/novo e /journal/:id: ver JournalEditor. */}
+              <Route path="/journal/:id" element={<JournalEditor />} />
               <Route path="/progresso" element={<Progress />} />
             </Route>
           </Route>
