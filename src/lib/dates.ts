@@ -71,3 +71,40 @@ export function greeting(now: Date = new Date()): string {
   if (h >= 12 && h < 18) return 'Boa tarde'
   return 'Boa noite'
 }
+
+/** Lista de datas de `from` a `to`, inclusive. Vazia se from > to. */
+export function eachDay(from: string, to: string): string[] {
+  const days: string[] = []
+  for (let d = from; d <= to; d = addDays(d, 1)) days.push(d)
+  return days
+}
+
+/** Data local (São Paulo) de um timestamp do banco. */
+export function localDateOf(timestamp: string): string {
+  return todayISO(new Date(timestamp))
+}
+
+const MONTH_SHORT = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
+
+/** Ex.: "6 out" (sem ponto no mês). */
+export function formatShort(iso: string): string {
+  const [, m, d] = iso.split('-').map(Number)
+  return `${d} ${MONTH_SHORT[m - 1]}`
+}
+
+/** "Hoje", "Ontem" ou formatShort. */
+export function relativeDayLabel(iso: string, today: string): string {
+  if (iso === today) return 'Hoje'
+  if (iso === addDays(today, -1)) return 'Ontem'
+  return formatShort(iso)
+}
+
+/** Dias entre duas datas (to − from). */
+export function daysBetween(from: string, to: string): number {
+  return Math.round((parseISODate(to).getTime() - parseISODate(from).getTime()) / 86_400_000)
+}
+
+/** Primeira letra maiúscula: "terça-feira, 6 de outubro" → "Terça-feira, 6 de outubro". */
+export function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}

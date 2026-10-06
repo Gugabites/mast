@@ -1,5 +1,18 @@
 import { describe, expect, it } from 'vitest'
-import { addDays, dayOfYear, greeting, todayISO, weekday, formatLong } from './dates'
+import {
+  addDays,
+  capitalize,
+  dayOfYear,
+  daysBetween,
+  eachDay,
+  formatLong,
+  formatShort,
+  greeting,
+  localDateOf,
+  relativeDayLabel,
+  todayISO,
+  weekday,
+} from './dates'
 
 describe('dates', () => {
   it('todayISO usa o fuso de São Paulo, não UTC', () => {
@@ -35,5 +48,40 @@ describe('dates', () => {
     expect(greeting(new Date('2026-10-06T10:00:00Z'))).toBe('Bom dia')   // 07h SP
     expect(greeting(new Date('2026-10-06T17:00:00Z'))).toBe('Boa tarde') // 14h SP
     expect(greeting(new Date('2026-10-06T23:00:00Z'))).toBe('Boa noite') // 20h SP
+  })
+
+  it('eachDay atravessa o mês e devolve vazio se from > to', () => {
+    expect(eachDay('2026-10-30', '2026-11-02')).toEqual([
+      '2026-10-30',
+      '2026-10-31',
+      '2026-11-01',
+      '2026-11-02',
+    ])
+    expect(eachDay('2026-10-02', '2026-10-01')).toEqual([])
+  })
+
+  it('localDateOf usa o fuso de São Paulo', () => {
+    // 01:00 UTC de 6/10 = 22:00 de 5/10 em São Paulo
+    expect(localDateOf('2026-10-06T01:00:00Z')).toBe('2026-10-05')
+  })
+
+  it('formatShort sem ponto no mês', () => {
+    expect(formatShort('2026-10-06')).toBe('6 out')
+    expect(formatShort('2026-05-01')).toBe('1 mai')
+  })
+
+  it('relativeDayLabel', () => {
+    expect(relativeDayLabel('2026-10-08', '2026-10-08')).toBe('Hoje')
+    expect(relativeDayLabel('2026-10-07', '2026-10-08')).toBe('Ontem')
+    expect(relativeDayLabel('2026-10-06', '2026-10-08')).toBe('6 out')
+  })
+
+  it('daysBetween', () => {
+    expect(daysBetween('2026-10-06', '2026-12-31')).toBe(86)
+    expect(daysBetween('2026-10-06', '2026-10-03')).toBe(-3)
+  })
+
+  it('capitalize', () => {
+    expect(capitalize('terça-feira, 6 de outubro')).toBe('Terça-feira, 6 de outubro')
   })
 })
