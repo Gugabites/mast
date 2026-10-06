@@ -191,8 +191,8 @@ textarea {
 
 /* ---------- layout e navegação (celular) ---------- */
 .content {
-  padding: 24px 20px;
-  padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 24px);
+  padding: calc(24px + env(safe-area-inset-top)) 20px
+    calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 24px);
 }
 
 .nav {
