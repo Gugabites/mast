@@ -15,6 +15,7 @@ export interface Objective {
   archived_at: string | null
   sort_order: number
   created_at: string
+  lineage_id: string
 }
 
 export interface ObjectiveLog {
