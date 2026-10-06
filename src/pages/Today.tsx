@@ -14,7 +14,9 @@ import { ObjectiveForm } from '../components/ObjectiveForm'
 import { PageHeader } from '../components/PageHeader'
 import { Sheet } from '../components/Sheet'
 import { TrackerStatus } from '../components/TrackerStatus'
+import { VerseCard } from '../components/VerseCard'
 import { useTracker } from '../data/TrackerProvider'
+import { useVerses } from '../data/VersesProvider'
 import {
   addDays,
   capitalize,
@@ -27,6 +29,7 @@ import { formatPoints, frequencyLabel } from '../lib/format'
 import { objectivesForDay } from '../lib/schedule'
 import { scoreDay, type DayScore } from '../lib/scoring'
 import type { Objective, Polarity } from '../lib/types'
+import { verseForDay } from '../lib/verses'
 
 type SheetState = { mode: 'create-once' } | { mode: 'edit'; objective: Objective } | null
 
@@ -34,6 +37,7 @@ export function Today() {
   const { signOut } = useAuth()
   const tracker = useTracker()
   const { today, objectives, logs, streaks } = tracker
+  const verses = useVerses()
   const [params, setParams] = useSearchParams()
   const [sheet, setSheet] = useState<SheetState>(null)
 
@@ -61,6 +65,7 @@ export function Today() {
   const positives = ofKind('positive')
   const negatives = ofKind('negative')
   const score = scoreDay(objectives, logs, date, today)
+  const verse = verseForDay(verses, date)
 
   const renderRow = (o: Objective) => (
     <ItemRow
@@ -112,6 +117,8 @@ export function Today() {
           </button>
         )}
       </div>
+
+      {verse && <VerseCard key={date} verse={verse} date={date} />}
 
       {tracker.status !== 'ready' ? (
         <TrackerStatus />

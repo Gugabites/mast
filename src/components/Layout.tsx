@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom'
 import { TrackerProvider } from '../data/TrackerProvider'
+import { VersesProvider } from '../data/VersesProvider'
 import { Nav } from './Nav'
 import { ToastProvider } from './Toast'
 
@@ -9,10 +10,12 @@ export function Layout() {
   return (
     <ToastProvider>
       <TrackerProvider>
-        <Nav />
-        <main className="content">
-          <Outlet />
-        </main>
+        <VersesProvider>
+          <Nav />
+          <main className="content">
+            <Outlet />
+          </main>
+        </VersesProvider>
       </TrackerProvider>
     </ToastProvider>
   )

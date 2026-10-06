@@ -89,6 +89,7 @@ textarea {
 .btn-ghost {
   background: transparent;
   border: 1px solid var(--line);
+  color: var(--ink); /* links com cara de botão não herdam a cor */
 }
 
 .btn-text {
@@ -351,6 +352,7 @@ textarea {
   .nav-footer .btn {
     width: 100%;
     border-color: var(--ink-2);
+    color: inherit;
   }
 
   .page-header h1 {
@@ -1193,5 +1195,120 @@ textarea {
 @media (max-width: 399px) {
   .field-row {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- versículo do dia ---------- */
+.verse-card {
+  margin-bottom: var(--s-4);
+  padding: var(--s-5);
+  border: 1px solid var(--verse-line);
+  border-radius: var(--r-lg);
+  background: var(--verse-bg);
+}
+
+.verse-card-collapsed {
+  padding-top: var(--s-4);
+  padding-bottom: var(--s-4);
+}
+
+.verse-head,
+.verse-collapsed {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.verse-collapsed {
+  width: 100%;
+  min-height: var(--touch);
+  padding: 0;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.verse-eyebrow {
+  display: block;
+  color: var(--verse-ink);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.verse-collapsed-ref {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.verse-text {
+  margin: var(--s-2) 0 0;
+  font-family: var(--font-scripture);
+  font-size: 19px;
+  line-height: 1.55;
+}
+
+.verse-ref {
+  margin-top: var(--s-2);
+  color: var(--verse-ink);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.verse-rule {
+  height: 1px;
+  margin: var(--s-4) 0;
+  border: none;
+  background: var(--verse-line);
+}
+
+.verse-reflection {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.verse-question {
+  margin-top: var(--s-4);
+  padding: var(--s-4);
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.verse-question-label {
+  color: var(--verse-ink);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.verse-question-text {
+  margin: var(--s-1) 0 var(--s-3);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.verse-answer {
+  border-color: var(--verse-line);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+@media (min-width: 900px) {
+  .verse-card {
+    padding: var(--s-6);
+  }
+
+  .verse-card-collapsed {
+    padding-top: var(--s-4);
+    padding-bottom: var(--s-4);
+  }
+
+  .verse-text {
+    font-size: 21px;
   }
 }

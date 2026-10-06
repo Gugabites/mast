@@ -90,6 +90,25 @@ function seed() {
     once_date: today,
   })
 
+  // Versículos de exemplo, só para o card aparecer na prévia.
+  const sampleVerses = [
+    ['Lamentações 3:22-23', 'Constância'],
+    ['Provérbios 16:3', 'Propósito'],
+    ['Filipenses 4:13', 'Força'],
+  ]
+  sampleVerses.forEach(([reference, theme], i) =>
+    db.verses.push({
+      id: i + 1,
+      position: i + 1,
+      reference,
+      theme,
+      text: 'Texto de exemplo do versículo na prévia local, com tamanho parecido ao de um versículo real para conferir a tipografia do cartão.',
+      reflection:
+        'Reflexão de exemplo: duas ou três frases que ligam o versículo ao dia de hoje, para conferir o espaçamento e a leitura no celular.',
+      question: 'O que você pode fazer hoje, mesmo pequeno, que o seu eu de amanhã vai agradecer?',
+    }),
+  )
+
   const goal = { user_id: USER_ID, why: null, due_date: null, unit: null, target_value: null, status: 'active' }
   db.goals.push(
     {

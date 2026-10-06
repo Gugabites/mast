@@ -141,6 +141,22 @@ export function ChevronRightIcon({ size }: IconProps) {
   )
 }
 
+export function ChevronUpIcon({ size }: IconProps) {
+  return (
+    <Svg size={size}>
+      <path d="M5 15l7-7 7 7" />
+    </Svg>
+  )
+}
+
+export function ChevronDownIcon({ size }: IconProps) {
+  return (
+    <Svg size={size}>
+      <path d="M5 9l7 7 7-7" />
+    </Svg>
+  )
+}
+
 export function CloseIcon({ size }: IconProps) {
   return (
     <Svg size={size}>

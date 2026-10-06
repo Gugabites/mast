@@ -13,11 +13,15 @@
   --accent-bright: #7FD1A3;
   --streak: #A04D0C;
   --negative: #B3261E;
+  --verse-bg: #F4EBDD;
+  --verse-line: #E7D6BC;
+  --verse-ink: #6B4A20;
 
   /* tipografia */
   --font-display: 'Space Grotesk', system-ui, sans-serif;
   --font-body: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-scripture: 'Source Serif 4', Georgia, serif; /* só no texto bíblico */
 
   /* espaçamento (escala de 4px) */
   --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
