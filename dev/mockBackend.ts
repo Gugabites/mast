@@ -90,23 +90,38 @@ function seed() {
     once_date: today,
   })
 
-  // Versículos de exemplo, só para o card aparecer na prévia.
-  const sampleVerses = [
-    ['Lamentações 3:22-23', 'Constância'],
-    ['Provérbios 16:3', 'Propósito'],
-    ['Filipenses 4:13', 'Força'],
-  ]
-  sampleVerses.forEach(([reference, theme], i) =>
-    db.verses.push({
-      id: i + 1,
-      position: i + 1,
-      reference,
-      theme,
-      text: 'Texto de exemplo do versículo na prévia local, com tamanho parecido ao de um versículo real para conferir a tipografia do cartão.',
+  // Três entradas copiadas de supabase/migrations/0003_verses_seed.sql.
+  db.verses.push(
+    {
+      id: 1,
+      position: 1,
+      reference: 'Provérbios 3:5-6',
+      text: 'Confia no SENHOR de todo o teu coração e não te estribes no teu próprio entendimento. Reconhece-o em todos os teus caminhos, e ele endireitará as tuas veredas.',
       reflection:
-        'Reflexão de exemplo: duas ou três frases que ligam o versículo ao dia de hoje, para conferir o espaçamento e a leitura no celular.',
-      question: 'O que você pode fazer hoje, mesmo pequeno, que o seu eu de amanhã vai agradecer?',
-    }),
+        'Salomão contrapõe duas bases para a vida: o próprio entendimento e a confiança em Deus. Confiar de todo o coração não é deixar de pensar, mas reconhecer que a nossa visão é parcial. Quando Deus é reconhecido em cada caminho, inclusive nos pequenos, ele endireita o percurso que sozinhos nós entortaríamos.',
+      question: 'Em que decisão de hoje estou confiando só no meu próprio entendimento?',
+      theme: 'Confiança',
+    },
+    {
+      id: 2,
+      position: 2,
+      reference: 'Filipenses 4:6-7',
+      text: 'Não estejais inquietos por coisa alguma; antes, as vossas petições sejam em tudo conhecidas diante de Deus, pela oração e súplica, com ação de graças. E a paz de Deus, que excede todo o entendimento, guardará o vosso coração e os vossos sentimentos em Cristo Jesus.',
+      reflection:
+        'Paulo escreve isso preso, o que dá peso ao conselho. A alternativa à ansiedade não é fingir que nada preocupa, mas transformar cada preocupação em oração, sempre acompanhada de gratidão. A promessa não é que tudo se resolva do nosso jeito, e sim uma paz que guarda o coração antes mesmo da resposta.',
+      question: 'Qual preocupação posso entregar em oração agora, em vez de carregá-la o dia todo?',
+      theme: 'Oração',
+    },
+    {
+      id: 3,
+      position: 3,
+      reference: '1 Tessalonicenses 5:16-18',
+      text: 'Regozijai-vos sempre. Orai sem cessar. Em tudo dai graças, porque esta é a vontade de Deus em Cristo Jesus para convosco.',
+      reflection:
+        'São três ordens curtas que descrevem uma postura, não um sentimento passageiro. Paulo não diz para dar graças por tudo, mas em tudo: mesmo nos dias difíceis existe algo pelo que agradecer. A gratidão constante treina o olhar para enxergar o cuidado de Deus no meio da rotina.',
+      question: 'Quais são três coisas concretas de hoje pelas quais posso agradecer?',
+      theme: 'Gratidão',
+    },
   )
 
   const entry = (offset: number, title: string | null, body: string) => {
