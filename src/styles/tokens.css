@@ -1,0 +1,36 @@
+:root {
+  /* cores */
+  --bg: #EEF0EC;
+  --surface: #FFFFFF;
+  --surface-2: #F7F8F6;
+  --ink: #121614;
+  --ink-2: #232A26;
+  --muted: #5A635E;
+  --muted-on-ink: #A9B3AD;
+  --line: #DCE0DB;
+  --line-soft: #EDF0EC;
+  --accent: #1E6B47;
+  --accent-bright: #7FD1A3;
+  --streak: #A04D0C;
+  --negative: #B3261E;
+
+  /* tipografia */
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* espaçamento (escala de 4px) */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
+  --s-5: 20px; --s-6: 24px; --s-8: 32px; --s-10: 40px; --s-12: 48px;
+
+  /* raios */
+  --r-sm: 10px;
+  --r-md: 12px;
+  --r-lg: 18px;
+
+  /* layout */
+  --sidebar-w: 232px;
+  --bottom-nav-h: 64px;
+  --content-max: 1180px;
+  --touch: 44px;
+}
