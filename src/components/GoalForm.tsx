@@ -185,6 +185,7 @@ export function GoalForm({ goals, goal, onDone }: GoalFormProps) {
                 <input
                   id="goal-unit"
                   maxLength={30}
+                  autoCapitalize="none"
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
                   placeholder="livros, km, R$"
