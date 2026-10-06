@@ -108,3 +108,8 @@ export function daysBetween(from: string, to: string): number {
 export function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1)
 }
+
+/** true se a string é uma data real no formato 'YYYY-MM-DD'. */
+export function isValidISODate(s: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(s) && toISODate(parseISODate(s)) === s
+}

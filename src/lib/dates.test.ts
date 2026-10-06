@@ -8,6 +8,7 @@ import {
   formatLong,
   formatShort,
   greeting,
+  isValidISODate,
   localDateOf,
   relativeDayLabel,
   todayISO,
@@ -83,5 +84,13 @@ describe('dates', () => {
 
   it('capitalize', () => {
     expect(capitalize('terça-feira, 6 de outubro')).toBe('Terça-feira, 6 de outubro')
+  })
+
+  it('isValidISODate', () => {
+    expect(isValidISODate('2026-10-06')).toBe(true)
+    expect(isValidISODate('2026-02-30')).toBe(false)
+    expect(isValidISODate('2026-13-01')).toBe(false)
+    expect(isValidISODate('06/10/2026')).toBe(false)
+    expect(isValidISODate('')).toBe(false)
   })
 })
