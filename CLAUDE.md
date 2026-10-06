@@ -57,28 +57,48 @@ Fora da v1 (backlog na seção 10). Não implementar nada fora desta lista sem c
 ### Pesos
 Cada objetivo (positivo ou negativo) tem peso **baixo, médio ou alto = 10, 20 ou 30 pontos**.
 
+### Quando um objetivo vale para um dia D
+- **Avulso (`once`):** só se `once_date = D`.
+- **Diário (`daily`):** se `starts_on ≤ D`.
+- **Dias da semana (`weekdays`):** se `starts_on ≤ D` e o dia da semana de D está em `weekdays`.
+- **Arquivado:** deixa de valer a partir da data local (São Paulo) de `archived_at`, inclusive. Conta até o dia anterior ao arquivamento.
+
+Implementação: `src/lib/schedule.ts` (`isScheduledOn`, `objectivesForDay`).
+
 ### Pontuação de um dia
-Para um dia D, considerar apenas os objetivos **programados** para D (avulsos com data D; recorrentes ativos cujo padrão inclui D e que já existiam em D).
+| Situação | Pontos |
+|---|---|
+| Positivo feito | **+peso** |
+| Positivo não feito, em dia já encerrado | **−peso ÷ 2** (10 → −5, 20 → −10, 30 → −15) |
+| Positivo não feito, no dia corrente | 0 (ainda não desconta) |
+| Negativo que ocorreu | **−peso** |
+| Negativo que não ocorreu | 0 |
 
-- Positivo feito: **+peso**
-- Positivo não feito: **−peso**, mas só depois que o dia acabou. No dia corrente, ainda não desconta.
-- Negativo que ocorreu: **−peso**
-- Negativo que não ocorreu: 0
-
-Métricas do dia:
-- **Saldo** = soma dos itens acima.
+- **Saldo** = ganhos − perdas.
 - **Máximo possível** = soma dos pesos dos positivos programados.
-- **Aproveitamento (%)** = pontos ganhos com positivos ÷ máximo possível. Se o máximo for 0, mostrar "—".
+- **Aproveitamento (%)** = ganhos ÷ máximo possível, arredondado. Se o máximo for 0, mostrar "—".
+- A razão do desconto é a constante `MISSED_PENALTY_RATIO = 0.5` em `src/lib/scoring.ts`.
 
 Tudo é calculado a partir dos registros; não existe job de fechamento do dia.
 
-### Sequências
-- Positivo recorrente: dias programados consecutivos em que foi feito. Dias não programados não quebram a sequência. O dia corrente só conta se já foi feito (e não quebra se ainda não foi).
-- Negativo: dias programados consecutivos sem ocorrência.
-- Guardar e exibir também o recorde histórico.
+### Linhagem (editar sem perder a sequência)
+- Cada objetivo tem `lineage_id`. Todas as versões de um mesmo objetivo compartilham a linhagem.
+- **Editar só o título:** `update` direto na versão atual.
+- **Editar peso, frequência ou dias:** a versão atual é arquivada e uma nova é criada com `starts_on = hoje` e a mesma linhagem, numa única operação no banco (função `replace_objective`). O registro de hoje, se houver, passa para a nova versão. O passado continua valendo com o peso antigo.
+- **O tipo (Fazer / Evitar) não pode ser alterado** depois de criado.
+- **Excluir** apaga a linhagem inteira, com todos os registros, e muda pontuações passadas. **Arquivar** é a ação padrão e preserva tudo.
+- **Restaurar** um arquivado cria uma nova versão na mesma linhagem, começando hoje. Os dias em que ficou arquivado não contam nem quebram a sequência.
+- Avulsos não têm versões: editar título ou peso altera direto.
 
-### Edição de recorrência
-Mudar peso ou recorrência de um objetivo não pode reescrever o passado. Solução da v1: arquivar o objetivo antigo e criar um novo (a UI faz isso por baixo ao editar campos que afetam histórico). Editar só o título altera direto.
+### Sequências
+Calculadas **por linhagem recorrente** (avulsos não têm sequência), em `src/lib/streaks.ts`. Percorre os dias do primeiro `starts_on` da linhagem até hoje e, em cada dia, procura a versão programada:
+- Nenhuma versão programada: ignora o dia (não soma, não quebra).
+- **Positivo:** feito → soma 1. Não feito em dia encerrado → zera. Não feito hoje → neutro.
+- **Negativo:** ocorreu → zera (inclusive hoje). Não ocorreu em dia encerrado → soma 1. Hoje sem ocorrência → neutro.
+- **Sequência atual** = contagem ao final; **recorde** = maior contagem atingida. O recorde não é guardado: é recalculado a partir dos registros.
+
+### Carregamento
+Ao entrar, o app carrega **todos** os objetivos (inclusive arquivados) e **todos** os registros, paginando de 1.000 em 1.000. Sem o histórico inteiro, sequências e recordes ficariam errados.
 
 ### Metas
 Campos: título, motivo (opcional, texto curto), prazo (opcional), tipo de progresso:
@@ -109,7 +129,8 @@ objectives (
   starts_on date not null default current_date,
   archived_at timestamptz,
   sort_order int default 0,
-  created_at timestamptz default now()
+  created_at timestamptz default now(),
+  lineage_id uuid not null default gen_random_uuid()   -- versões do mesmo objetivo
 )
 
 objective_logs (
@@ -157,6 +178,10 @@ verses (
 )
 -- Sem user_id. RLS: leitura para usuários autenticados; sem escrita pelo app.
 ```
+
+Função `replace_objective(p_old_id, p_title, p_weight, p_schedule, p_weekdays, p_once_date)`: arquiva a versão atual e cria a nova na mesma linhagem, movendo o registro de hoje. `security invoker` (o RLS continua valendo); só `authenticated` pode executar.
+
+Migrações aplicadas: `0001_init.sql`, `0002_lineage.sql`.
 
 Migrações SQL ficam versionadas em `supabase/migrations/` (arquivos numerados) e são executadas no SQL Editor do Supabase.
 
@@ -220,7 +245,7 @@ Um plano detalhado de cada dia será entregue separadamente.
 
 - [x] Ter 6/10 — preparação
 - [x] Qua 7/10 — fundação (concluída em 6/10; site no ar em https://gugabites.github.io/mast/)
-- [ ] Qui 8/10 — núcleo
+- [x] Qui 8/10 — núcleo (concluído em 6/10: objetivos, registros, pontuação, sequências e metas no ar)
 - [ ] Sex 9/10 — completar e colocar em uso
 
 ## Decisões
@@ -235,3 +260,12 @@ Um plano detalhado de cada dia será entregue separadamente.
 - 2026-10-06: O push é feito pelo Guga no GitHub Desktop (botão "Push origin"). O Claude Code só faz commits locais, porque o git do terminal não tem credenciais do GitHub neste Mac.
 - 2026-10-06: Autor dos commits configurado só neste repositório, com o e-mail noreply do GitHub (repositório público).
 - 2026-10-06: Teste local em `http://localhost:5173/mast/` (`npm run dev`).
+- 2026-10-06: Positivo não feito desconta **metade** do peso após o fim do dia (`MISSED_PENALTY_RATIO = 0.5`). Substitui a decisão anterior de descontar o peso inteiro.
+- 2026-10-06: Linhagem de objetivos (`lineage_id` + `replace_objective`) para preservar histórico e sequência em edições. Substitui "arquivar e criar outro" sem vínculo.
+- 2026-10-06: Todos os registros são carregados na entrada, com paginação de 1.000.
+- 2026-10-06: `TrackerProvider` (`src/data/`) compartilha objetivos e registros entre Hoje e Objetivos, com marcação otimista; metas usam o hook `useGoals`.
+- 2026-10-06: As páginas não chamam o `supabase` direto: usam `src/lib/api/` (exceção: a página temporária de diagnóstico).
+- 2026-10-06: Formulários sempre em `Sheet` (`<dialog>` nativo). O `Sheet` não tem prop `footer`: o formulário filho traz `.sheet-body` e `.sheet-footer`. Erros de salvamento aparecem dentro do formulário, porque um toast ficaria atrás do diálogo.
+- 2026-10-06: O círculo de "Evitar" não marcado usa a mesma borda do quadrado de "Fazer" (`#9AA49E`), e não `--line`, que ficava quase invisível.
+- 2026-10-06: Prévia local em `dev/preview.html` (`npm run dev` → `http://localhost:5173/mast/dev/preview.html`): roda o app real, já logado, contra um banco falso em memória. É como o Claude Code confere telas logadas sem a senha do Guga. Não entra no build.
+- 2026-10-06: O recorde de sequência não tem coluna: é recalculado dos registros a cada carga.
