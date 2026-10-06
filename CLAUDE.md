@@ -218,8 +218,8 @@ Um plano detalhado de cada dia será entregue separadamente.
 
 ## Status
 
-- [ ] Ter 6/10 — preparação
-- [ ] Qua 7/10 — fundação
+- [x] Ter 6/10 — preparação
+- [x] Qua 7/10 — fundação (concluída em 6/10; site no ar em https://gugabites.github.io/mast/)
 - [ ] Qui 8/10 — núcleo
 - [ ] Sex 9/10 — completar e colocar em uso
 
@@ -228,3 +228,10 @@ Um plano detalhado de cada dia será entregue separadamente.
 - 2026-10-06: Pesos 10/20/30; positivo não feito desconta o peso inteiro após o fim do dia.
 - 2026-10-06: Editar peso/recorrência arquiva o objetivo e cria outro, para preservar o histórico.
 - 2026-10-06: Sem `date-fns`: datas com `Intl` e strings `'YYYY-MM-DD'`, fuso de São Paulo.
+- 2026-10-06: Conta única criada pelo painel do Supabase; novos cadastros desativados; o app não tem tela de cadastro.
+- 2026-10-06: Página `/diagnostico` temporária, a remover na sexta.
+- 2026-10-06: Lint com Oxlint (padrão atual do template do Vite), não ESLint. `npm run lint` continua valendo.
+- 2026-10-06: Todos os estilos ficam em `src/styles/global.css` (mais `tokens.css`), sem CSS por componente.
+- 2026-10-06: O push é feito pelo Guga no GitHub Desktop (botão "Push origin"). O Claude Code só faz commits locais, porque o git do terminal não tem credenciais do GitHub neste Mac.
+- 2026-10-06: Autor dos commits configurado só neste repositório, com o e-mail noreply do GitHub (repositório público).
+- 2026-10-06: Teste local em `http://localhost:5173/mast/` (`npm run dev`).
