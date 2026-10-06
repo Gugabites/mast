@@ -164,8 +164,16 @@ function handle(url: URL, init: RequestInit): Response {
   const table = db[resource]
   if (!table) return json({ code: 'PGRST205', message: `unknown table ${resource}` }, 404)
 
-  const filters = [...url.searchParams].filter(([, value]) => value.startsWith('eq.'))
-  const matches = (row: Row) => filters.every(([key, value]) => String(row[key]) === value.slice(3))
+  // Filtros `eq.valor` e `in.(a,b)`; o resto dos parâmetros (select, order…) é ignorado.
+  const filters = [...url.searchParams].flatMap(([key, value]) => {
+    if (value.startsWith('eq.')) return [(row: Row) => String(row[key]) === value.slice(3)]
+    if (value.startsWith('in.(')) {
+      const allowed = value.slice(4, -1).split(',').map((v) => v.replace(/^"|"$/g, ''))
+      return [(row: Row) => allowed.includes(String(row[key]))]
+    }
+    return []
+  })
+  const matches = (row: Row) => filters.every((test) => test(row))
   const reply = (rows: Row[], status = 200) => json(single ? (rows[0] ?? null) : rows, status)
 
   if (method === 'GET') {
@@ -175,7 +183,12 @@ function handle(url: URL, init: RequestInit): Response {
   }
 
   if (method === 'POST' && body) {
-    if (resource === 'objectives') return reply([insertObjective(body)], 201)
+    if (resource === 'objectives') {
+      if (![10, 20, 30].includes(Number(body.weight))) {
+        return json({ code: '23514', message: 'violates check constraint' }, 400)
+      }
+      return reply([insertObjective(body)], 201)
+    }
     if (resource === 'objective_logs') {
       const duplicate = table.some(
         (l) => l.objective_id === body.objective_id && l.log_date === body.log_date,
