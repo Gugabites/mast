@@ -30,6 +30,19 @@ export function normalizeInput<T extends ObjectiveEdit>(input: T): T {
     : { ...input, title, schedule: 'daily', weekdays: null, once_date: null }
 }
 
+/**
+ * true se a edição muda peso, frequência ou dias. Essas mudanças não podem
+ * reescrever o passado: exigem uma nova versão (replaceObjective).
+ */
+export function changesHistory(o: Objective, edit: ObjectiveEdit): boolean {
+  const next = normalizeInput(edit)
+  return (
+    next.weight !== o.weight ||
+    next.schedule !== o.schedule ||
+    (next.weekdays ?? []).join(',') !== (normalizeWeekdays(o.weekdays ?? []) ?? []).join(',')
+  )
+}
+
 /** Todos os objetivos, inclusive arquivados. */
 export function listObjectives(): Promise<Objective[]> {
   return fetchAll<Objective>((from, to) =>
