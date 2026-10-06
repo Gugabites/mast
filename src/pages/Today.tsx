@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link, Navigate, useSearchParams } from 'react-router-dom'
-import { useAuth } from '../auth/AuthProvider'
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -34,7 +33,6 @@ import { verseForDay } from '../lib/verses'
 type SheetState = { mode: 'create-once' } | { mode: 'edit'; objective: Objective } | null
 
 export function Today() {
-  const { signOut } = useAuth()
   const tracker = useTracker()
   const { today, objectives, logs, streaks } = tracker
   const verses = useVerses()
@@ -85,11 +83,6 @@ export function Today() {
       <PageHeader
         eyebrow={isToday ? capitalize(formatLong(today)) : 'Revisando um dia anterior'}
         title={isToday ? `${greeting()}, Guga.` : capitalize(formatLong(date))}
-        action={
-          <button type="button" className="btn btn-text only-mobile" onClick={signOut}>
-            Sair
-          </button>
-        }
       />
 
       <div className="day-nav">

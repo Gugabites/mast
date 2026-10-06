@@ -46,12 +46,12 @@ function insertLog(objectiveId: unknown, date: unknown): Row {
 }
 
 function seed() {
-  const start = day(-9)
+  // 45 dias de histórico, com dias bons, dias ruins e alguns deslizes,
+  // para sequências e gráfico terem forma.
+  const start = day(-45)
   const base = { starts_on: start, created_at: noon(start) }
 
   const read = insertObjective({ ...base, title: 'Ler 20 minutos', polarity: 'positive', weight: 20, schedule: 'daily' })
-  for (const offset of [-9, -8, -7, -6, -4, -3, -2, -1]) insertLog(read.id, day(offset))
-
   const train = insertObjective({
     ...base,
     title: 'Treinar',
@@ -60,10 +60,6 @@ function seed() {
     schedule: 'weekdays',
     weekdays: [1, 3, 5],
   })
-  for (let offset = -9; offset < 0; offset++) {
-    if ([1, 3, 5].includes(weekday(day(offset)))) insertLog(train.id, day(offset))
-  }
-
   const phone = insertObjective({
     ...base,
     title: 'Celular depois das 23h',
@@ -71,7 +67,17 @@ function seed() {
     weight: 20,
     schedule: 'daily',
   })
-  insertLog(phone.id, day(-3))
+
+  const badDays = new Set([-5, -12, -13, -26, -27, -28, -40])
+  const slips = new Set([-3, -13, -27, -34])
+  for (let offset = -45; offset < 0; offset++) {
+    const date = day(offset)
+    if (!badDays.has(offset)) insertLog(read.id, date)
+    if ([1, 3, 5].includes(weekday(date)) && !badDays.has(offset) && offset % 11 !== 0) {
+      insertLog(train.id, date)
+    }
+    if (slips.has(offset)) insertLog(phone.id, date)
+  }
 
   insertObjective({
     ...base,

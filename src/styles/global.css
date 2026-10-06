@@ -1489,3 +1489,165 @@ textarea {
     padding: var(--s-3) 0;
   }
 }
+
+/* ---------- progresso ---------- */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s-3);
+  margin: 0;
+}
+
+.stat {
+  padding: var(--s-4);
+}
+
+.stat dd {
+  margin: 0;
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.stat-note {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.chart-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-2) var(--s-4);
+}
+
+.chart-head .section-title {
+  margin-bottom: 0;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  margin: 0;
+  padding: 0;
+  color: var(--muted);
+  font-size: 12px;
+  list-style: none;
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  border-radius: 2px;
+}
+
+.legend-positive {
+  background: var(--accent);
+}
+
+.legend-negative {
+  background: var(--negative);
+}
+
+.legend-line {
+  display: inline-block;
+  width: 14px;
+  margin-right: 6px;
+  border-top: 2px solid var(--ink);
+  vertical-align: middle;
+}
+
+/* min-width: 0 evita largura zero do gráfico dentro de um contêiner flex. */
+.chart {
+  min-width: 0;
+  height: 260px;
+  margin-top: var(--s-3);
+}
+
+.chart-tooltip {
+  padding: var(--s-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: 0 6px 20px rgba(18, 22, 20, 0.12);
+  font-size: 13px;
+}
+
+.chart-tooltip-date {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-weight: 600;
+}
+
+.chart-table summary {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  min-height: var(--touch);
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.data-table th,
+.data-table td {
+  padding: 6px var(--s-2);
+  border-bottom: 1px solid var(--line-soft);
+  font-weight: 400;
+  text-align: right;
+}
+
+.data-table th:first-child {
+  text-align: left;
+}
+
+.data-table thead th {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.account-email {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.account-version {
+  margin-bottom: var(--s-3);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media (min-width: 900px) {
+  .stat-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .chart {
+    height: 300px;
+  }
+
+  .account-version {
+    margin-bottom: 0;
+  }
+}
