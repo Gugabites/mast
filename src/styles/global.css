@@ -1651,3 +1651,52 @@ textarea {
     margin-bottom: 0;
   }
 }
+
+/* ---------- aviso de nova versão ---------- */
+.update-prompt {
+  position: fixed;
+  right: var(--s-4);
+  bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + var(--s-3));
+  left: var(--s-4);
+  z-index: 30; /* acima dos toasts */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--ink);
+  box-shadow: 0 6px 20px rgba(18, 22, 20, 0.25);
+  color: #fff;
+  font-size: 14px;
+}
+
+.update-actions {
+  display: flex;
+  gap: var(--s-1);
+  margin-left: auto;
+}
+
+.update-prompt .btn-text {
+  color: var(--muted-on-ink);
+}
+
+.update-now {
+  border: none;
+  background: var(--accent-bright);
+  color: var(--ink);
+}
+
+.update-prompt :focus-visible {
+  outline-color: var(--accent-bright);
+}
+
+@media (min-width: 900px) {
+  .update-prompt {
+    right: var(--s-6);
+    bottom: var(--s-6);
+    left: auto;
+    max-width: 440px;
+  }
+}

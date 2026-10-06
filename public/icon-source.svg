@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Ícone de app: quadrado sem cantos (o sistema arredonda) e desenho dentro dos 60% centrais. -->
+  <rect width="512" height="512" fill="#1E6B47"/>
+  <g transform="translate(256 256) scale(6.5) translate(-32 -32)">
+    <path d="M30 12 V52" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+    <path d="M34 16 L50 44 H34 Z" fill="#FFFFFF"/>
+    <path d="M16 52 H48" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+  </g>
+</svg>

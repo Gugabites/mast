@@ -4,6 +4,7 @@ import { AuthProvider } from './auth/AuthProvider'
 import { RequireAuth } from './auth/RequireAuth'
 import { Layout } from './components/Layout'
 import { PageHeader } from './components/PageHeader'
+import { UpdatePrompt } from './components/UpdatePrompt'
 import { Goals } from './pages/Goals'
 import { JournalEditor } from './pages/JournalEditor'
 import { JournalList } from './pages/JournalList'
@@ -48,6 +49,8 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </HashRouter>
+      {/* Fora das rotas: o aviso de versão nova vale também na tela de login. */}
+      <UpdatePrompt />
     </AuthProvider>
   )
 }
