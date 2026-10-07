@@ -24,9 +24,10 @@ O nome vem do mastro de Ulisses: ele se amarrou ao mastro antes de ouvir as sere
 | Estilo | CSS com variáveis (tokens na seção 8). Sem framework de UI pesado |
 | Roteamento | React Router com `HashRouter` (GitHub Pages não suporta rotas do lado do servidor) |
 | Banco e login | Supabase (Postgres + Auth + Row Level Security) via `@supabase/supabase-js` |
-| Gráficos | Recharts |
+| Gráficos | Recharts, só na tela Progresso, carregada sob demanda (`React.lazy`) |
 | Datas | Funções próprias em `src/lib/dates.ts` (Intl API). Fuso fixo `America/Sao_Paulo`. O "dia" sempre é a data local, nunca UTC |
-| PWA | `vite-plugin-pwa` (manifest, ícones, service worker) |
+| PWA | `vite-plugin-pwa` (manifest e service worker, `registerType: 'prompt'`). Ícones PNG gerados por `@vite-pwa/assets-generator` a partir de `public/icon-source.svg` e commitados |
+| Fontes | Space Grotesk, IBM Plex Sans, JetBrains Mono e Source Serif 4 (esta só no texto bíblico) |
 | Deploy | GitHub Pages via GitHub Actions, a cada push na `main` |
 
 Variáveis de ambiente: `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`. Ficam em `.env.local` (nunca commitado) e como secrets do repositório para o workflow. A anon key é pública por natureza; a segurança vem do RLS. **Nunca** usar nem commitar a `service_role` key.
@@ -34,6 +35,8 @@ Variáveis de ambiente: `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`. Ficam em
 `vite.config.ts` precisa de `base: '/mast/'` (nome do repositório).
 
 ## 4. Escopo da versão 1 (meta: sexta, 9 de outubro)
+
+**Versão 1 concluída em 6/10/2026**, três dias antes da meta: os 12 itens abaixo estão no ar e o app está instalado no iPhone do Guga.
 
 1. Login com e-mail e senha (Supabase Auth). Depois de criar a conta do Guga, desativar novos cadastros no painel do Supabase.
 2. Objetivos positivos:
@@ -107,10 +110,24 @@ Campos: título, motivo (opcional, texto curto), prazo (opcional), tipo de progr
 Status: ativa, concluída ou arquivada.
 
 ### Versículo do dia
-- Tabela `verses` com campo `position` (1..N).
-- Versículo exibido = `position = ((diaDoAno − 1) mod N) + 1`. Assim funciona com 30 entradas e com 365.
-- Tradução: Almeida Revista e Corrigida (edição de domínio público).
-- O conteúdo dos versículos é escrito à parte (Claude chat) e entregue como arquivo SQL de seed.
+- Tabela `verses` com campo `position`. Hoje são 30 entradas (`0003_verses_seed.sql`); tradução Almeida Revista e Corrigida.
+- Versículo do dia D = item de índice `(diaDoAno(D) − 1) mod N` na lista **ordenada por `position`** (`src/lib/verses.ts`). Usar o índice, e não `position === n`, funciona com qualquer quantidade e com buracos na numeração.
+- Ao rever um dia anterior, aparece o versículo daquele dia.
+- Todos os versículos são carregados de uma vez (`VersesProvider`) e guardados em `localStorage['mast:verses:v1']`: o cache mostra o versículo na hora e o banco atualiza em seguida. Se a busca falhar, vale o cache; sem cache, o card não aparece.
+- O card começa expandido a cada dia; recolher é lembrado por dia em `localStorage['mast:verse-collapsed:{data}']`.
+- O conteúdo é escrito à parte (Claude chat) e entra por SQL no editor do Supabase; o app não escreve nessa tabela.
+
+### Journal
+- Editor em página própria (`/journal/novo` e `/journal/:id`, uma rota só), sem botão Salvar.
+- **Salvamento automático** 1,5 s depois da última digitação (`src/lib/autosaver.ts`), nunca dois ao mesmo tempo. Salva na hora ao tocar em "‹ Journal", ao sair da página e quando o app vai para segundo plano.
+- Corpo vazio nunca é gravado: não cria entrada nova nem apaga o texto de uma existente (`needsSave` em `src/lib/journal.ts`).
+- **Rascunho de segurança** em `localStorage['mast:journal-draft:{id|new}']`: gravado quando o salvamento falha e, por garantia, sempre que o app vai para segundo plano com texto não salvo. É apagado quando o banco confirma. Ao abrir, um rascunho mais novo que o `updated_at` do banco é recuperado.
+- "Responder no journal" (no versículo) abre uma entrada nova com a pergunta como título; a referência aparece só como contexto visual, não é salva.
+
+### Progresso
+- Gráfico de barras do saldo diário em 7, 30 ou 90 dias, começando no primeiro dia rastreado se ele for mais recente que a janela (`src/lib/progress.ts`).
+- Indicadores (saldo médio, aproveitamento, dias no positivo, melhor dia) consideram **só dias encerrados com algo programado**. O dia corrente aparece no gráfico, mais claro, mas nunca entra nas médias.
+- Média móvel de 7 dias (só em 30 e 90 dias): exige pelo menos 3 dias válidos na janela; senão, não há ponto.
 
 ## 6. Modelo de dados (Supabase / Postgres)
 
@@ -181,7 +198,7 @@ verses (
 
 Função `replace_objective(p_old_id, p_title, p_weight, p_schedule, p_weekdays, p_once_date)`: arquiva a versão atual e cria a nova na mesma linhagem, movendo o registro de hoje. `security invoker` (o RLS continua valendo); só `authenticated` pode executar.
 
-Migrações aplicadas: `0001_init.sql`, `0002_lineage.sql`.
+Migrações aplicadas: `0001_init.sql`, `0002_lineage.sql`, `0003_verses_seed.sql` (30 versículos; pode rodar de novo, atualiza pelo `position`).
 
 Migrações SQL ficam versionadas em `supabase/migrations/` (arquivos numerados) e são executadas no SQL Editor do Supabase.
 
@@ -189,12 +206,14 @@ Migrações SQL ficam versionadas em `supabase/migrations/` (arquivos numerados)
 
 Navegação: barra inferior no celular, barra lateral no desktop.
 
-- **Hoje:** data, versículo do dia (recolhível), resumo do dia (saldo, aproveitamento), lista de objetivos positivos do dia, lista de hábitos negativos do dia, botão para adicionar objetivo avulso. Permitir navegar para dias anteriores e corrigir registros.
-- **Objetivos:** gerenciar objetivos recorrentes e hábitos negativos (criar, editar, arquivar), com sequência atual e recorde.
-- **Metas:** lista de metas com barra de progresso; criar e editar.
-- **Journal:** lista por data; editor de texto simples.
-- **Progresso:** gráfico de saldo diário (7/30/90 dias) e média do período.
+- **Hoje:** data, navegação entre dias, versículo do dia (recolhível, com reflexão, pergunta e "Responder no journal"), resumo do dia (saldo, anel de aproveitamento), lista "Fazer", lista "Evitar" e botão de objetivo só para o dia. Dias anteriores podem ser revistos e corrigidos; a sequência (chama) só aparece no dia de hoje.
+- **Objetivos:** objetivos recorrentes e hábitos a evitar (criar, editar, arquivar, restaurar, excluir), com sequência atual e recorde.
+- **Metas:** metas com barra de progresso, botões − e +, concluir, arquivar e excluir.
+- **Journal:** lista agrupada por mês; editor de página inteira com salvamento automático.
+- **Progresso:** período (7/30/90 dias), quatro indicadores, gráfico do saldo diário com tabela alternativa, e o card **Conta** (e-mail, versão do app e, no celular, o botão Sair).
 - **Login.**
+
+No desktop, "Sair" fica na barra lateral. Um aviso "Nova versão do Mast disponível" aparece em qualquer tela quando há versão nova publicada.
 
 ## 8. Direção visual
 
@@ -211,8 +230,11 @@ Base no mockup aprovado: claro, sóbrio, editorial, com destaque em verde.
 | `--accent-bright` (sobre fundo escuro) | `#7FD1A3` |
 | `--streak` (sequências) | `#A04D0C` |
 | `--negative` | `#B3261E` |
+| `--verse-bg` (card do versículo) | `#F4EBDD` |
+| `--verse-line` | `#E7D6BC` |
+| `--verse-ink` | `#6B4A20` |
 
-- Tipografia (Google Fonts): **Space Grotesk** para títulos, **IBM Plex Sans** para texto, **JetBrains Mono** para números (pontos, sequências, percentuais).
+- Tipografia (Google Fonts): **Space Grotesk** para títulos, **IBM Plex Sans** para texto, **JetBrains Mono** para números (pontos, sequências, percentuais) e **Source Serif 4** (`--font-scripture`) só no texto bíblico.
 - Cards brancos com borda `--line`, raio 16–18px. Cartão de resumo do dia em fundo `--ink`.
 - Ícones em SVG de traço simples. Sem emoji.
 - Alvos de toque de no mínimo 44px. Contraste mínimo 4.5:1. Botões reais (`<button>`), labels em inputs.
@@ -228,7 +250,7 @@ Base no mockup aprovado: claro, sóbrio, editorial, com destaque em verde.
 
 ## 10. Backlog (versão 2 em diante)
 
-Revisão semanal guiada; marcos intermediários das metas; vincular objetivos a metas; áreas da vida; pausar hábito sem perder sequência; objetivos com frequência "X vezes por semana"; objetivos quantitativos; passar pendências para o dia seguinte; registro de energia/humor e nota curta do dia; busca no journal; versículos favoritos; 365 versículos; estatísticas detalhadas (heatmap, taxa por objetivo, dias mais fortes); exportar dados; lembretes/notificações.
+Revisão semanal guiada; marcos intermediários das metas; vincular objetivos a metas; áreas da vida; pausar hábito sem perder sequência; objetivos com frequência "X vezes por semana"; objetivos quantitativos; passar pendências para o dia seguinte; registro de energia/humor e nota curta do dia; busca no journal; versículos favoritos; versículos 31 a 365; estatísticas detalhadas (heatmap, taxa por objetivo, dias mais fortes); exportar dados; lembretes/notificações; reordenar objetivos (`sort_order` é sempre 0); sequência "como estava naquele dia" ao rever dias passados; modo escuro; proteção contra senhas vazadas (aviso do Security Advisor; exige plano pago do Supabase).
 
 ## 11. Cronograma
 
@@ -246,7 +268,7 @@ Um plano detalhado de cada dia será entregue separadamente.
 - [x] Ter 6/10 — preparação
 - [x] Qua 7/10 — fundação (concluída em 6/10; site no ar em https://gugabites.github.io/mast/)
 - [x] Qui 8/10 — núcleo (concluído em 6/10: objetivos, registros, pontuação, sequências e metas no ar)
-- [ ] Sex 9/10 — completar e colocar em uso
+- [x] Sex 9/10 — completar e colocar em uso (concluído em 6/10: versículo, journal, progresso e PWA no ar; app instalado no iPhone e atualização testada)
 
 ## Decisões
 
@@ -269,3 +291,17 @@ Um plano detalhado de cada dia será entregue separadamente.
 - 2026-10-06: O círculo de "Evitar" não marcado usa a mesma borda do quadrado de "Fazer" (`#9AA49E`), e não `--line`, que ficava quase invisível.
 - 2026-10-06: Prévia local em `dev/preview.html` (`npm run dev` → `http://localhost:5173/mast/dev/preview.html`): roda o app real, já logado, contra um banco falso em memória. É como o Claude Code confere telas logadas sem a senha do Guga. Não entra no build.
 - 2026-10-06: O recorde de sequência não tem coluna: é recalculado dos registros a cada carga.
+- 2026-10-06: Versículos carregados todos de uma vez, com cache em `localStorage`; versículo do dia pelo índice na lista ordenada. Em dias anteriores aparece o versículo daquele dia.
+- 2026-10-06: Editor do journal em página própria, com salvamento automático (1,5 s), salvamento imediato ao sair e rascunho local de segurança. Sem botão Salvar.
+- 2026-10-06: `/journal/novo` e `/journal/:id` são a mesma rota; ao ganhar id, a URL é trocada levando `editorKey` no estado, para o editor não ser recriado (não perde foco nem texto).
+- 2026-10-06: Abrir uma entrada existente do journal **não** dá foco automático no texto (o plano pedia foco no fim): no celular o teclado subiria toda vez que ele fosse só reler. Entrada nova continua com foco no corpo.
+- 2026-10-06: Tela Progresso carregada sob demanda. Médias só com dias encerrados que tinham algo programado; média móvel com no mínimo 3 dias válidos.
+- 2026-10-06: Gráfico usa `--accent` e `--negative` (tokens da marca). O validador de paleta acusa o verde como pouco saturado; a polaridade também é dada pela posição da barra (acima ou abaixo do zero) e pelo sinal no tooltip e na tabela.
+- 2026-10-06: PWA com `registerType: 'prompt'`: versão nova só entra quando o usuário toca em "Atualizar". O service worker guarda os arquivos do app e as fontes do Google; nunca há cache de `*.supabase.co`.
+- 2026-10-06: Versão do app (hash do commit e hora do build) exibida no card Conta, na tela Progresso.
+- 2026-10-06: "Sair" no celular fica no card Conta (Progresso), não mais no cabeçalho da tela Hoje.
+- 2026-10-06: A sequência (chama) só aparece quando o dia exibido é hoje.
+- 2026-10-06: Restaurar um objetivo arquivado no mesmo dia leva a marcação de hoje para a nova versão.
+- 2026-10-06: O aviso "A mudança vale a partir de hoje" fica no rodapé fixo do Sheet. O rodapé passou a ter `.sheet-notice` e `.sheet-actions`.
+- 2026-10-06: Página de diagnóstico removida. A prévia local (`dev/`) continua, agora com versículos, journal e 45 dias de histórico de exemplo, e um interruptor `__mastMock.failWrites` para simular queda de conexão.
+- 2026-10-06: **Copiar texto com acentos para a área de transferência exige `LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pbcopy < arquivo`.** O `pbcopy` puro, neste Mac, estraga os acentos ("coração" vira "cora√ß√£o"). Conferir com `osascript -e 'the clipboard as «class utf8»'`; conferir com `pbpaste` não mostra o erro.
