@@ -17,7 +17,7 @@ const Progress = lazy(() => import('./pages/Progress').then((m) => ({ default: m
 
 const progressFallback = (
   <>
-    <PageHeader eyebrow="Evolução" title="Progresso" subtitle="Constância vence intensidade." />
+    <PageHeader eyebrow="Evolução" title="Progresso" subtitle="Constância vence intensidade. Um dia de cada vez." />
     <div className="skeleton skeleton-tall" role="status" aria-label="Carregando" />
   </>
 )
